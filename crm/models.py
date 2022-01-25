@@ -14,6 +14,9 @@ class Client(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
     sales_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.first_name} | Company: {self.company_name}"
+
 
 class Contract(models.Model):
     sales_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -23,6 +26,9 @@ class Contract(models.Model):
     status = models.BooleanField(default=False)
     amount = models.FloatField(blank=True)
     payment_due = models.DateTimeField()
+
+    def __str__(self):
+        return f"Contract ID:{self.id} | Client:{self.client.first_name} | Sales Contact: {self.sales_contact}"
 
 
 class Event(models.Model):

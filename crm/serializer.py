@@ -8,6 +8,7 @@ class ClientSerializer(ModelSerializer):
     class Meta:
         model = Client
         fields = '__all__'
+        # read_field_only = ['sales_contact']
 
 
 class ContractSerializer(ModelSerializer):

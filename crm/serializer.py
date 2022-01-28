@@ -8,7 +8,6 @@ class ClientSerializer(ModelSerializer):
     class Meta:
         model = Client
         fields = '__all__'
-        # read_field_only = ['sales_contact']
 
 
 class ContractSerializer(ModelSerializer):
@@ -27,3 +26,4 @@ class EventSerializer(ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
+        extra_kwargs = {'support_contact': {'required': False}}

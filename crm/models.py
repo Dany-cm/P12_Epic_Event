@@ -34,6 +34,9 @@ class Contract(models.Model):
 class ContractStatus(models.Model):
     signed = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f"Contract ID: {self.id} | Signed: {self.signed}"
+
 
 class Event(models.Model):
     client = models.ForeignKey(to=Client, on_delete=models.CASCADE)

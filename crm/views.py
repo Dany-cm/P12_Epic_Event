@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from crm.models import Client, Contract, Event, ContractStatus
-from crm.permissions import HasClientPermissions, HasContractPermissions
+from crm.permissions import HasClientPermissions, HasContractPermissions, HasEventPermissions
 from crm.serializer import ClientSerializer, ContractSerializer, EventSerializer
 
 
@@ -52,13 +52,17 @@ class ContractViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['sales_contact'] = request.user.id
 
-        if request.data['status'] == 1:
-            serialized_data = ContractSerializer(data=request.data)
-            serialized_data.is_valid(raise_exception=True)
-            serialized_data.save()
+        try:
+            if request.data['status'] == 1:
+                serialized_data = ContractSerializer(data=request.data)
+                serialized_data.is_valid(raise_exception=True)
+                serialized_data.save()
 
-            ContractStatus.objects.create(signed=1).save()
-            return Response(serialized_data.data, status=status.HTTP_201_CREATED)
+                ContractStatus.objects.create(signed=1).save()
+                return Response(serialized_data.data, status=status.HTTP_201_CREATED)
+        except KeyError:
+            message = "Field 'status' cannot be blank"
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
         else:
             serialized_data = ContractSerializer(data=request.data)
             serialized_data.is_valid(raise_exception=True)
@@ -80,3 +84,15 @@ class ContractViewSet(ModelViewSet):
 class EventViewSet(ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    permission_classes = [IsAuthenticated, HasEventPermissions]
+
+    def get_queryset(self):
+        return Event.objects.filter(support_contact=self.request.user.id)
+
+    def update(self, request, *args, **kwargs):
+        request.data['support_contact'] = request.user.id
+        return super(EventViewSet, self).update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        message = "You're not allowed to delete an event"
+        return Response(message, status=status.HTTP_405_METHOD_NOT_ALLOWED)

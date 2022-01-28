@@ -29,5 +29,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', RegisterView.as_view()),
     path('api/', include(router.urls)),
-    # path('', include('rest_framework.urls')),
 ]

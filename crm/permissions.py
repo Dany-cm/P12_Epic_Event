@@ -10,7 +10,7 @@ class HasClientPermissions(BasePermission):
         if request.user.groups.filter(name='sales'):
             if request.user == obj.sales_contact:
                 return True
-            return False
+        return False
 
 
 class HasContractPermissions(BasePermission):
@@ -22,4 +22,16 @@ class HasContractPermissions(BasePermission):
         if request.user.groups.filter(name='sales'):
             if request.user == obj.sales_contact:
                 return True
-            return False
+        return False
+
+
+class HasEventPermissions(BasePermission):
+
+    def has_permission(self, request, view):
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.groups.filter(name='supports'):
+            if request.user == obj.support_contact:
+                return True
+        return False

@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,14 +14,27 @@ class ClientViewSet(ModelViewSet):
     Sales team can :
     - Create a client in the CRM
     - Update a client's information(assigned to them)
+
+    Supports team can:
+    - See a client that is related to a current event
+
+    Managements team can :
+    - Create, view & update a client
     """
 
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [IsAuthenticated, HasClientPermissions]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['last_name', 'email']
 
     def get_queryset(self):
-        return Client.objects.filter(sales_contact=self.request.user.id)
+        if self.request.user.groups.filter(name='supports'):
+            return Client.objects.filter(event__support_contact=self.request.user.id)
+        elif self.request.user.groups.filter(name='managements'):
+            return Client.objects.all()
+        else:
+            return Client.objects.filter(sales_contact=self.request.user.id)
 
     def create(self, request, *args, **kwargs):
         request.data['sales_contact'] = request.user.id
@@ -40,14 +54,22 @@ class ContractViewSet(ModelViewSet):
     Sales team can :
     - Create a contract for a client(only if the contract is signed)
     - Indicate that an open(int:1) contract is signed.
+
+    Managements team can :
+    - Create, view & update a contract
     """
 
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
     permission_classes = [IsAuthenticated, HasContractPermissions]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['client__last_name', 'client__email', 'date_created', 'amount']
 
     def get_queryset(self):
-        return Contract.objects.filter(sales_contact=self.request.user.id)
+        if self.request.user.groups.filter(name='managements'):
+            return Contract.objects.all()
+        else:
+            return Contract.objects.filter(sales_contact=self.request.user.id)
 
     def create(self, request, *args, **kwargs):
         request.data['sales_contact'] = request.user.id
@@ -82,12 +104,29 @@ class ContractViewSet(ModelViewSet):
 
 
 class EventViewSet(ModelViewSet):
+    """
+    Sales team can :
+    - Create an event for a signed contract
+
+    Support team can :
+    - View and update events assigned to them
+    - View client related to event assigned to them
+
+    Managements team can :
+    - Create, view & update an event
+    """
+
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticated, HasEventPermissions]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['client__last_name', 'client__email', 'event_date']
 
     def get_queryset(self):
-        return Event.objects.filter(support_contact=self.request.user.id)
+        if self.request.user.groups.filter(name='managements'):
+            return Event.objects.all()
+        else:
+            return Event.objects.filter(support_contact=self.request.user.id)
 
     def update(self, request, *args, **kwargs):
         request.data['support_contact'] = request.user.id

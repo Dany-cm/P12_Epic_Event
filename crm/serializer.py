@@ -26,4 +26,4 @@ class EventSerializer(ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
-        extra_kwargs = {'support_contact': {'required': False}}
+        # extra_kwargs = {'support_contact': {'required': False}}

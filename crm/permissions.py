@@ -15,6 +15,9 @@ class HasClientPermissions(BasePermission):
 
         if request.user.groups.filter(name='supports'):
             return request.method in SAFE_METHODS
+
+        if request.user.groups.filter(name='managements'):
+            return True
         return False
 
 
@@ -27,6 +30,9 @@ class HasContractPermissions(BasePermission):
         if request.user.groups.filter(name='sales'):
             if request.user == obj.sales_contact:
                 return True
+
+        if request.user.groups.filter(name='managements'):
+            return True
         return False
 
 
@@ -39,4 +45,7 @@ class HasEventPermissions(BasePermission):
         if request.user.groups.filter(name='supports'):
             if request.user == obj.support_contact:
                 return True
+
+        if request.user.groups.filter(name='managements'):
+            return True
         return False

@@ -1,4 +1,5 @@
 from rest_framework.fields import BooleanField, FloatField, IntegerField, CharField
+from rest_framework.relations import RelatedField
 from rest_framework.serializers import ModelSerializer
 
 from crm.models import Client, Contract, Event
@@ -22,8 +23,8 @@ class ContractSerializer(ModelSerializer):
 class EventSerializer(ModelSerializer):
     attendees = IntegerField(required=True)
     notes = CharField(required=True)
+    support_contact = RelatedField(read_only=True)
 
     class Meta:
         model = Event
         fields = '__all__'
-        # extra_kwargs = {'support_contact': {'required': False}}

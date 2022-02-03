@@ -32,7 +32,7 @@ class Contract(models.Model):
 
 
 class ContractStatus(models.Model):
-    signed = models.IntegerField(default=0)
+    signed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Contract ID: {self.id} | Signed: {self.signed}"
@@ -42,7 +42,7 @@ class Event(models.Model):
     client = models.ForeignKey(to=Client, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
-    support_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    support_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
     event_status = models.ForeignKey(to=ContractStatus, on_delete=models.CASCADE)
     attendees = models.IntegerField(default=0)
     event_date = models.DateTimeField()

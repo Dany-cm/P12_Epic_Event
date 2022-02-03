@@ -113,7 +113,7 @@ class EventViewSet(ModelViewSet):
     - View client related to event assigned to them
 
     Managements team can :
-    - Create, view & update an event
+    - Assign a support team member to an event
     """
 
     queryset = Event.objects.all()
@@ -128,9 +128,24 @@ class EventViewSet(ModelViewSet):
         else:
             return Event.objects.filter(support_contact=self.request.user.id)
 
-    def update(self, request, *args, **kwargs):
-        request.data['support_contact'] = request.user.id
-        return super(EventViewSet, self).update(request, *args, **kwargs)
+    def create(self, request, *args, **kwargs):
+        contract_is_signed = ContractStatus.objects.filter(signed=True).exists()
+
+        try:
+            if contract_is_signed:
+                serialized_data = EventSerializer(data=request.data)
+                serialized_data.is_valid(raise_exception=True)
+                serialized_data.save()
+
+                ContractStatus.objects.update(signed=True)
+
+                return Response(serialized_data.data, status=status.HTTP_201_CREATED)
+        except KeyError:
+            message = "Field 'event_status' cannot be blank"
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            message = "You cannot create an event for a closed contract"
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):
         message = "You're not allowed to delete an event"

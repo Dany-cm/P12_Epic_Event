@@ -1,9 +1,6 @@
 
 # Epic Events
-
-An event management and consulting company that caters to the needs of start-ups wanting to throw "epic parties".
-
-
+Epic Events, a company specialized in managing events for their clients
 
 ## Installation
 

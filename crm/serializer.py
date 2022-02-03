@@ -23,7 +23,7 @@ class ContractSerializer(ModelSerializer):
 class EventSerializer(ModelSerializer):
     attendees = IntegerField(required=True)
     notes = CharField(required=True)
-    support_contact = RelatedField(read_only=True)
+    support_contact = CharField(read_only=True)
 
     class Meta:
         model = Event

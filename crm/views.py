@@ -137,8 +137,6 @@ class EventViewSet(ModelViewSet):
                 serialized_data.is_valid(raise_exception=True)
                 serialized_data.save()
 
-                ContractStatus.objects.update(signed=True)
-
                 return Response(serialized_data.data, status=status.HTTP_201_CREATED)
         except KeyError:
             message = "Field 'event_status' cannot be blank"

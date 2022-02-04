@@ -1,5 +1,4 @@
 from rest_framework.fields import BooleanField, FloatField, IntegerField, CharField
-from rest_framework.relations import RelatedField
 from rest_framework.serializers import ModelSerializer
 
 from crm.models import Client, Contract, Event

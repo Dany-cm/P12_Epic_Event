@@ -129,20 +129,21 @@ class EventViewSet(ModelViewSet):
             return Event.objects.filter(support_contact=self.request.user.id)
 
     def create(self, request, *args, **kwargs):
-        contract_is_signed = ContractStatus.objects.filter(signed=True).exists()
+        contract_qs = ContractStatus.objects.filter(signed=True).values('id').order_by('id').distinct()
+        contract_list_id = list([entry['id'] for entry in contract_qs])
 
         try:
-            if contract_is_signed:
+            if request.data['client'] in contract_list_id:
                 serialized_data = EventSerializer(data=request.data)
                 serialized_data.is_valid(raise_exception=True)
                 serialized_data.save()
 
                 return Response(serialized_data.data, status=status.HTTP_201_CREATED)
+            else:
+                message = "You cannot create an event for a closed contract"
+                return Response(message, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             message = "Field 'event_status' cannot be blank"
-            return Response(message, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            message = "You cannot create an event for a closed contract"
             return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):

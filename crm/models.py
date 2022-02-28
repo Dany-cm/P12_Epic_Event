@@ -34,6 +34,9 @@ class Contract(models.Model):
 class ContractStatus(models.Model):
     signed = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name_plural = "Contract status"
+
     def __str__(self):
         return f"Contract ID: {self.id} | Signed: {self.signed}"
 
